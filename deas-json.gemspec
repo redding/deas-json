@@ -5,12 +5,12 @@ require "deas-json/version"
 
 Gem::Specification.new do |gem|
   gem.name        = "deas-json"
-  gem.version     = DeasJson::VERSION
-  gem.authors     = ["TODO: authors"]
-  gem.email       = ["TODO: emails"]
-  gem.description = %q{TODO: Write a gem description}
-  gem.summary     = %q{TODO: Write a gem summary}
-  gem.homepage    = "http://github.com/__/deas-json"
+  gem.version     = Deas::Json::VERSION
+  gem.authors     = ["Kelly Redding", "Collin Redding"]
+  gem.email       = ["kelly@kellyredding.com", "collin.redding@me.com"]
+  gem.description = %q{JSON helpers for Deas apps}
+  gem.summary     = %q{JSON helpers for Deas apps}
+  gem.homepage    = "http://github.com/redding/deas-json"
   gem.license     = 'MIT'
 
   gem.files         = `git ls-files`.split($/)
@@ -18,7 +18,8 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
 
-  gem.add_development_dependency("assert", ["~> 2.12"])
-  # TODO: gem.add_dependency("gem-name", ["~> 0.0"])
+  gem.add_development_dependency("assert", ["~> 2.14"])
+
+  gem.add_dependency("deas", ["~> 0.33"])
 
 end

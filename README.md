@@ -1,6 +1,6 @@
-# DeasJson
+# Deas::Json
 
-TODO: Write a gem description
+JSON helpers for [Deas](https://github.com/redding/deas) apps.
 
 ## Usage
 
