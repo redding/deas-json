@@ -17,6 +17,12 @@ module Deas::Json::ViewHandler
       assert_includes Deas::ViewHandler, subject
     end
 
+    should "know its default status, headers and body values" do
+      assert_equal nil,      subject::DEF_STATUS
+      assert_equal Hash.new, subject::DEF_HEADERS
+      assert_equal '{}',     subject::DEF_BODY
+    end
+
   end
 
   class InitTests < UnitTests
@@ -33,16 +39,7 @@ module Deas::Json::ViewHandler
       assert_equal :json, subject.content_type.value
     end
 
-    should "default its body and headers if not provided" do
-      @handler.status = Factory.integer
-      response = @runner.run
-
-      assert_equal @handler.status, response.status
-      assert_equal({},              response.headers)
-      assert_equal '{}',            response.body
-    end
-
-    should "allow halting with a body and headers" do
+    should "use all given args" do
       @handler.status  = Factory.integer
       @handler.headers = { Factory.string => Factory.string }
       @handler.body    = Factory.text
@@ -51,6 +48,71 @@ module Deas::Json::ViewHandler
       assert_equal @handler.status,  response.status
       assert_equal @handler.headers, response.headers
       assert_equal @handler.body,    response.body
+    end
+
+    should "default its status, headers and body if not provided" do
+      response = @runner.run
+
+      assert_equal DEF_STATUS,  response.status
+      assert_equal DEF_HEADERS, response.headers
+      assert_equal DEF_BODY,    response.body
+    end
+
+    should "default its headers and body if not provided" do
+      @handler.status = Factory.integer
+      response = @runner.run
+
+      assert_equal @handler.status, response.status
+      assert_equal DEF_HEADERS,     response.headers
+      assert_equal DEF_BODY,        response.body
+    end
+
+    should "default its status and body if not provided" do
+      @handler.headers = { Factory.string => Factory.string }
+      response = @runner.run
+
+      assert_equal DEF_STATUS,       response.status
+      assert_equal @handler.headers, response.headers
+      assert_equal DEF_BODY,         response.body
+    end
+
+    should "default its status and headers if not provided" do
+      @handler.body = Factory.text
+      response = @runner.run
+
+      assert_equal DEF_STATUS,    response.status
+      assert_equal DEF_HEADERS,   response.headers
+      assert_equal @handler.body, response.body
+    end
+
+    should "default its status if not provided" do
+      @handler.headers = { Factory.string => Factory.string }
+      @handler.body = Factory.text
+      response = @runner.run
+
+      assert_equal DEF_STATUS,       response.status
+      assert_equal @handler.headers, response.headers
+      assert_equal @handler.body,    response.body
+    end
+
+    should "default its headers if not provided" do
+      @handler.status = Factory.integer
+      @handler.body = Factory.text
+      response = @runner.run
+
+      assert_equal @handler.status, response.status
+      assert_equal DEF_HEADERS,     response.headers
+      assert_equal @handler.body,   response.body
+    end
+
+    should "default its body if not provided" do
+      @handler.status  = Factory.integer
+      @handler.headers = { Factory.string => Factory.string }
+      response = @runner.run
+
+      assert_equal @handler.status,  response.status
+      assert_equal @handler.headers, response.headers
+      assert_equal DEF_BODY,         response.body
     end
 
   end
