@@ -13,6 +13,10 @@ module Deas::Json::ViewHandler
     end
     subject{ @handler_class }
 
+    should "use much-plugin" do
+      assert_includes MuchPlugin, Deas::Json::ViewHandler
+    end
+
     should "be a deas view handler" do
       assert_includes Deas::ViewHandler, subject
     end
