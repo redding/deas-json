@@ -6,7 +6,7 @@ module Deas::Json
   module ViewHandler
     include MuchPlugin
 
-    DEF_STATUS  = nil
+    DEF_STATUS  = 200.freeze
     DEF_HEADERS = {}.freeze
     DEF_BODY    = '{}'.freeze
 
@@ -14,7 +14,7 @@ module Deas::Json
       include Deas::ViewHandler
       include InstanceMethods
 
-      before_init{ content_type :json }
+      before_init{ content_type('.json', 'charset' => 'utf-8') }
     end
 
     module InstanceMethods
@@ -25,13 +25,11 @@ module Deas::Json
       # content type is 'json'.  This will default the body to a string that
       # can be parsed to an empty json object
       def halt(*args)
-        super(DEF_STATUS, DEF_HEADERS, DEF_BODY) if args.empty?
-        body, headers, status = [
-          !args.last.kind_of?(::Hash) && !args.last.kind_of?(::Integer) ? args.pop : DEF_BODY,
-          args.last.kind_of?(::Hash) ? args.pop : DEF_HEADERS,
-          args.first.kind_of?(::Integer) ? args.first : DEF_STATUS
-        ]
-        super(status, headers, body)
+        super(
+          args.first.instance_of?(::Fixnum) ? args.shift : DEF_STATUS,
+          args.first.kind_of?(::Hash) ? args.shift : DEF_HEADERS,
+          args.first.respond_to?(:each) ? args.shift : DEF_BODY
+        )
       end
 
     end
