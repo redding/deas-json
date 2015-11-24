@@ -1,7 +1,6 @@
 require 'assert'
 require 'deas-json/view_handler'
 
-require 'deas/test_helpers'
 require 'deas/view_handler'
 
 module Deas::Json::ViewHandler
@@ -22,7 +21,7 @@ module Deas::Json::ViewHandler
     end
 
     should "know its default status, headers and body values" do
-      assert_equal nil,      subject::DEF_STATUS
+      assert_equal 200,      subject::DEF_STATUS
       assert_equal Hash.new, subject::DEF_HEADERS
       assert_equal '{}',     subject::DEF_BODY
     end
@@ -30,28 +29,32 @@ module Deas::Json::ViewHandler
   end
 
   class InitTests < UnitTests
-    include Deas::TestHelpers
+    include Deas::ViewHandler::TestHelpers
 
     desc "when init"
     setup do
+      @status  = Factory.integer
+      @headers = { Factory.string => Factory.string }
+      @body    = [Factory.text]
+
       @runner  = test_runner(@handler_class)
       @handler = @runner.handler
     end
     subject{ @runner }
 
     should "force its content type to :json" do
-      assert_equal :json, subject.content_type.value
+      assert_equal '.json', subject.content_type_args.extname
+      exp = { 'charset' => 'utf-8' }
+      assert_equal exp, subject.content_type_args.params
     end
 
     should "use all given args" do
-      @handler.status  = Factory.integer
-      @handler.headers = { Factory.string => Factory.string }
-      @handler.body    = Factory.text
+      @handler.halt_args = [@status, @headers, @body]
       response = @runner.run
 
-      assert_equal @handler.status,  response.status
-      assert_equal @handler.headers, response.headers
-      assert_equal @handler.body,    response.body
+      assert_equal @status,  response.status
+      assert_equal @headers, response.headers
+      assert_equal @body,    response.body
     end
 
     should "default its status, headers and body if not provided" do
@@ -63,60 +66,57 @@ module Deas::Json::ViewHandler
     end
 
     should "default its headers and body if not provided" do
-      @handler.status = Factory.integer
+      @handler.halt_args = [@status]
       response = @runner.run
 
-      assert_equal @handler.status, response.status
-      assert_equal DEF_HEADERS,     response.headers
-      assert_equal DEF_BODY,        response.body
+      assert_equal @status,     response.status
+      assert_equal DEF_HEADERS, response.headers
+      assert_equal DEF_BODY,    response.body
     end
 
     should "default its status and body if not provided" do
-      @handler.headers = { Factory.string => Factory.string }
+      @handler.halt_args = [@headers]
       response = @runner.run
 
-      assert_equal DEF_STATUS,       response.status
-      assert_equal @handler.headers, response.headers
-      assert_equal DEF_BODY,         response.body
+      assert_equal DEF_STATUS, response.status
+      assert_equal @headers,   response.headers
+      assert_equal DEF_BODY,   response.body
     end
 
     should "default its status and headers if not provided" do
-      @handler.body = Factory.text
+      @handler.halt_args = [@body]
       response = @runner.run
 
-      assert_equal DEF_STATUS,    response.status
-      assert_equal DEF_HEADERS,   response.headers
-      assert_equal @handler.body, response.body
+      assert_equal DEF_STATUS,  response.status
+      assert_equal DEF_HEADERS, response.headers
+      assert_equal @body,       response.body
     end
 
     should "default its status if not provided" do
-      @handler.headers = { Factory.string => Factory.string }
-      @handler.body = Factory.text
+      @handler.halt_args = [@headers, @body]
       response = @runner.run
 
-      assert_equal DEF_STATUS,       response.status
-      assert_equal @handler.headers, response.headers
-      assert_equal @handler.body,    response.body
+      assert_equal DEF_STATUS, response.status
+      assert_equal @headers,   response.headers
+      assert_equal @body,      response.body
     end
 
     should "default its headers if not provided" do
-      @handler.status = Factory.integer
-      @handler.body = Factory.text
+      @handler.halt_args = [@status, @body]
       response = @runner.run
 
-      assert_equal @handler.status, response.status
-      assert_equal DEF_HEADERS,     response.headers
-      assert_equal @handler.body,   response.body
+      assert_equal @status,     response.status
+      assert_equal DEF_HEADERS, response.headers
+      assert_equal @body,       response.body
     end
 
     should "default its body if not provided" do
-      @handler.status  = Factory.integer
-      @handler.headers = { Factory.string => Factory.string }
+      @handler.halt_args = [@status, @headers]
       response = @runner.run
 
-      assert_equal @handler.status,  response.status
-      assert_equal @handler.headers, response.headers
-      assert_equal DEF_BODY,         response.body
+      assert_equal @status,  response.status
+      assert_equal @headers, response.headers
+      assert_equal DEF_BODY, response.body
     end
 
   end
@@ -124,12 +124,9 @@ module Deas::Json::ViewHandler
   class TestJsonHandler
     include Deas::Json::ViewHandler
 
-    attr_accessor :status, :headers, :body
+    attr_accessor :halt_args
 
-    def run!
-      args = [status, headers, body].compact
-      halt *args
-    end
+    def run!; halt *(@halt_args || []).dup; end
 
   end
 
