@@ -1,26 +1,23 @@
 require 'deas/view_handler'
+require 'much-plugin'
 
 module Deas::Json
 
   module ViewHandler
+    include MuchPlugin
 
     DEF_STATUS  = nil
     DEF_HEADERS = {}.freeze
     DEF_BODY    = '{}'.freeze
 
-    def self.included(klass)
-      klass.class_eval do
-        include Deas::ViewHandler
-        include InstanceMethods
-      end
+    plugin_included do
+      include Deas::ViewHandler
+      include InstanceMethods
+
+      before_init{ content_type :json }
     end
 
     module InstanceMethods
-
-      def initialize(*args)
-        super(*args)
-        content_type :json
-      end
 
       private
 
