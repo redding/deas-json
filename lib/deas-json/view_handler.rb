@@ -23,12 +23,13 @@ module Deas::Json
 
       # Some http clients will error when trying to parse an empty body when the
       # content type is 'json'.  This will default the body to a string that
-      # can be parsed to an empty json object
+      # can be parsed to an empty json object.
+      # We call the `body` helper method to make sure it adhere's to the Rack spec
       def halt(*args)
         super(
           args.first.instance_of?(::Fixnum) ? args.shift : DEF_STATUS,
           args.first.kind_of?(::Hash) ? args.shift : DEF_HEADERS,
-          args.first.respond_to?(:each) ? args.shift : DEF_BODY
+          body(!args.first.to_s.empty? ? args.shift : DEF_BODY)
         )
       end
 
