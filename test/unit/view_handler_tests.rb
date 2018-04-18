@@ -57,12 +57,21 @@ module Deas::Json::ViewHandler
       assert_equal @body,    response.body
     end
 
+    should "should adhere to the rack spec for its body" do
+      @handler.halt_args = [@status, @headers, @body.first]
+      response = @runner.run
+
+      assert_equal @status,  response.status
+      assert_equal @headers, response.headers
+      assert_equal @body,    response.body
+    end
+
     should "default its status, headers and body if not provided" do
       response = @runner.run
 
       assert_equal DEF_STATUS,  response.status
       assert_equal DEF_HEADERS, response.headers
-      assert_equal DEF_BODY,    response.body
+      assert_equal [DEF_BODY],  response.body
     end
 
     should "default its headers and body if not provided" do
@@ -71,7 +80,7 @@ module Deas::Json::ViewHandler
 
       assert_equal @status,     response.status
       assert_equal DEF_HEADERS, response.headers
-      assert_equal DEF_BODY,    response.body
+      assert_equal [DEF_BODY],  response.body
     end
 
     should "default its status and body if not provided" do
@@ -80,7 +89,7 @@ module Deas::Json::ViewHandler
 
       assert_equal DEF_STATUS, response.status
       assert_equal @headers,   response.headers
-      assert_equal DEF_BODY,   response.body
+      assert_equal [DEF_BODY], response.body
     end
 
     should "default its status and headers if not provided" do
@@ -111,12 +120,12 @@ module Deas::Json::ViewHandler
     end
 
     should "default its body if not provided" do
-      @handler.halt_args = [@status, @headers]
+      @handler.halt_args = [@status, @headers, [nil, ''].sample]
       response = @runner.run
 
-      assert_equal @status,  response.status
-      assert_equal @headers, response.headers
-      assert_equal DEF_BODY, response.body
+      assert_equal @status,    response.status
+      assert_equal @headers,   response.headers
+      assert_equal [DEF_BODY], response.body
     end
 
   end
